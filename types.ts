@@ -17,9 +17,12 @@ export interface RentalItem {
   imageUrl: string;
   owner: string;
   location: string;
+  status: 'active' | 'archived';
 }
 
 export interface Message {
   role: 'user' | 'model';
   text: string;
 }
+
+export type ViewMode = 'marketplace' | 'admin';

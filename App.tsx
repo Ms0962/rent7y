@@ -1,11 +1,12 @@
 
 import React, { useState, useMemo } from 'react';
-import { Category, RentalItem } from './types';
+import { Category, RentalItem, ViewMode } from './types';
 import { MOCK_ITEMS } from './constants';
 import Header from './components/Header';
 import ListingCard from './components/ListingCard';
 import AIChat from './components/AIChat';
 import ListingForm from './components/ListingForm';
+import AdminPanel from './components/AdminPanel';
 
 const App: React.FC = () => {
   const [items, setItems] = useState<RentalItem[]>(MOCK_ITEMS);
@@ -13,25 +14,35 @@ const App: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [isListingModalOpen, setIsListingModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<RentalItem | null>(null);
+  const [viewMode, setViewMode] = useState<ViewMode>('marketplace');
+
+  const activeItems = useMemo(() => items.filter(i => i.status === 'active'), [items]);
 
   const filteredItems = useMemo(() => {
-    return items.filter(item => {
+    return activeItems.filter(item => {
       const matchesCategory = selectedCategory === 'All' || item.category === selectedCategory;
       const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
                           item.description.toLowerCase().includes(searchQuery.toLowerCase());
       return matchesCategory && matchesSearch;
     });
-  }, [items, selectedCategory, searchQuery]);
+  }, [activeItems, selectedCategory, searchQuery]);
 
-  const handleAddItem = (newItem: Omit<RentalItem, 'id' | 'owner' | 'location'>) => {
+  const handleAddItem = (newItem: Omit<RentalItem, 'id' | 'owner' | 'location' | 'status'>) => {
     const item: RentalItem = {
       ...newItem,
       id: Math.random().toString(36).substr(2, 9),
       owner: 'Guest User',
-      location: 'San Francisco, CA'
+      location: 'San Francisco, CA',
+      status: 'active'
     };
     setItems([item, ...items]);
     setIsListingModalOpen(false);
+  };
+
+  const handleArchiveItem = (id: string) => {
+    setItems(prev => prev.map(item => 
+      item.id === id ? { ...item, status: 'archived' as const } : item
+    ));
   };
 
   return (
@@ -39,67 +50,75 @@ const App: React.FC = () => {
       <Header 
         onSearchChange={setSearchQuery} 
         onListClick={() => setIsListingModalOpen(true)}
+        viewMode={viewMode}
+        onToggleView={setViewMode}
       />
 
       <main className="container mx-auto px-4 pt-24">
-        {/* Categories Bar */}
-        <div className="flex gap-2 overflow-x-auto pb-4 no-scrollbar mb-8">
-          <button 
-            onClick={() => setSelectedCategory('All')}
-            className={`px-5 py-2.5 rounded-full text-sm font-medium whitespace-nowrap transition-all ${
-              selectedCategory === 'All' 
-                ? 'bg-indigo-600 text-white shadow-md' 
-                : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
-            }`}
-          >
-            All Items
-          </button>
-          {Object.values(Category).map((cat) => (
-            <button 
-              key={cat}
-              onClick={() => setSelectedCategory(cat)}
-              className={`px-5 py-2.5 rounded-full text-sm font-medium whitespace-nowrap transition-all ${
-                selectedCategory === cat 
-                  ? 'bg-indigo-600 text-white shadow-md' 
-                  : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
-              }`}
-            >
-              {cat}
-            </button>
-          ))}
-        </div>
+        {viewMode === 'marketplace' ? (
+          <>
+            {/* Categories Bar */}
+            <div className="flex gap-2 overflow-x-auto pb-4 no-scrollbar mb-8">
+              <button 
+                onClick={() => setSelectedCategory('All')}
+                className={`px-5 py-2.5 rounded-full text-sm font-medium whitespace-nowrap transition-all ${
+                  selectedCategory === 'All' 
+                    ? 'bg-indigo-600 text-white shadow-md' 
+                    : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
+                }`}
+              >
+                All Items
+              </button>
+              {Object.values(Category).map((cat) => (
+                <button 
+                  key={cat}
+                  onClick={() => setSelectedCategory(cat)}
+                  className={`px-5 py-2.5 rounded-full text-sm font-medium whitespace-nowrap transition-all ${
+                    selectedCategory === cat 
+                      ? 'bg-indigo-600 text-white shadow-md' 
+                      : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
 
-        {/* Hero Section (Search Results or Welcome) */}
-        {searchQuery && (
-          <div className="mb-6">
-            <h2 className="text-xl font-semibold text-slate-700">
-              Showing results for "<span className="text-indigo-600">{searchQuery}</span>"
-            </h2>
-          </div>
-        )}
+            {/* Hero Section */}
+            {searchQuery && (
+              <div className="mb-6">
+                <h2 className="text-xl font-semibold text-slate-700">
+                  Showing results for "<span className="text-indigo-600">{searchQuery}</span>"
+                </h2>
+              </div>
+            )}
 
-        {/* Items Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filteredItems.map(item => (
-            <ListingCard 
-              key={item.id} 
-              item={item} 
-              onClick={(it) => setSelectedItem(it)}
-            />
-          ))}
-        </div>
+            {/* Items Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {filteredItems.map(item => (
+                <ListingCard 
+                  key={item.id} 
+                  item={item} 
+                  onClick={(it) => setSelectedItem(it)}
+                />
+              ))}
+            </div>
 
-        {filteredItems.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-20 text-slate-400">
-            <i className="fa-solid fa-box-open text-6xl mb-4 opacity-20"></i>
-            <p className="text-lg">No items found matching your criteria.</p>
-            <button 
-              onClick={() => { setSearchQuery(''); setSelectedCategory('All'); }}
-              className="mt-4 text-indigo-600 font-semibold hover:underline"
-            >
-              Clear all filters
-            </button>
-          </div>
+            {filteredItems.length === 0 && (
+              <div className="flex flex-col items-center justify-center py-20 text-slate-400">
+                <i className="fa-solid fa-box-open text-6xl mb-4 opacity-20"></i>
+                <p className="text-lg">No items found matching your criteria.</p>
+                <button 
+                  onClick={() => { setSearchQuery(''); setSelectedCategory('All'); }}
+                  className="mt-4 text-indigo-600 font-semibold hover:underline"
+                >
+                  Clear all filters
+                </button>
+              </div>
+            )}
+          </>
+        ) : (
+          <AdminPanel items={items} onArchiveItem={handleArchiveItem} />
         )}
       </main>
 
@@ -179,7 +198,7 @@ const App: React.FC = () => {
         />
       )}
 
-      <AIChat />
+      {viewMode === 'marketplace' && <AIChat />}
     </div>
   );
 };

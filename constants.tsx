@@ -10,7 +10,8 @@ export const MOCK_ITEMS: RentalItem[] = [
     category: Category.PHOTOGRAPHY,
     imageUrl: 'https://picsum.photos/seed/camera1/800/600',
     owner: 'Alex Smith',
-    location: 'San Francisco, CA'
+    location: 'San Francisco, CA',
+    status: 'active'
   },
   {
     id: '2',
@@ -20,7 +21,8 @@ export const MOCK_ITEMS: RentalItem[] = [
     category: Category.TOOLS,
     imageUrl: 'https://picsum.photos/seed/drill1/800/600',
     owner: 'Sarah Johnson',
-    location: 'Oakland, CA'
+    location: 'Oakland, CA',
+    status: 'active'
   },
   {
     id: '3',
@@ -30,7 +32,8 @@ export const MOCK_ITEMS: RentalItem[] = [
     category: Category.OUTDOOR,
     imageUrl: 'https://picsum.photos/seed/tent1/800/600',
     owner: 'Mike Miller',
-    location: 'Berkeley, CA'
+    location: 'Berkeley, CA',
+    status: 'active'
   },
   {
     id: '4',
@@ -40,7 +43,8 @@ export const MOCK_ITEMS: RentalItem[] = [
     category: Category.ELECTRONICS,
     imageUrl: 'https://picsum.photos/seed/guitar1/800/600',
     owner: 'David Chen',
-    location: 'San Francisco, CA'
+    location: 'San Francisco, CA',
+    status: 'active'
   },
   {
     id: '5',
@@ -50,7 +54,8 @@ export const MOCK_ITEMS: RentalItem[] = [
     category: Category.SPORTS,
     imageUrl: 'https://picsum.photos/seed/paddle/800/600',
     owner: 'Elena Ruiz',
-    location: 'Sausalito, CA'
+    location: 'Sausalito, CA',
+    status: 'active'
   },
   {
     id: '6',
@@ -60,6 +65,7 @@ export const MOCK_ITEMS: RentalItem[] = [
     category: Category.ELECTRONICS,
     imageUrl: 'https://picsum.photos/seed/coffee/800/600',
     owner: 'Klaus Schmidt',
-    location: 'Palo Alto, CA'
+    location: 'Palo Alto, CA',
+    status: 'active'
   }
 ];

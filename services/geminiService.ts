@@ -46,3 +46,39 @@ export const chatWithConcierge = async (userMessage: string, history: any[]) => 
     sources: result.candidates?.[0]?.groundingMetadata?.groundingChunks || []
   };
 };
+
+export const generateAdminInsights = async (items: any[]) => {
+  if (!API_KEY) throw new Error("API key is missing");
+  const ai = new GoogleGenAI({ apiKey: API_KEY });
+  
+  const itemNames = items.map(i => i.name).join(', ');
+  const response = await ai.models.generateContent({
+    model: 'gemini-3-flash-preview',
+    contents: `Analyze this marketplace inventory: ${itemNames}. 
+    Provide 3 high-level strategic insights for the admin. 
+    Focus on: What categories are missing? What are the likely trending items this season? How can we increase revenue?`,
+    config: {
+      responseMimeType: "application/json",
+      responseSchema: {
+        type: Type.OBJECT,
+        properties: {
+          insights: {
+            type: Type.ARRAY,
+            items: {
+              type: Type.OBJECT,
+              properties: {
+                title: { type: Type.STRING },
+                content: { type: Type.STRING },
+                impact: { type: Type.STRING, description: "High, Medium, or Low" }
+              },
+              required: ["title", "content", "impact"]
+            }
+          }
+        },
+        required: ["insights"]
+      }
+    }
+  });
+
+  return JSON.parse(response.text);
+};
