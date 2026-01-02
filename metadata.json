@@ -1,0 +1,8 @@
+{
+  "name": "RentAll - Peer-to-Peer Rental Marketplace",
+  "description": "A sophisticated rental platform where users can browse, search, and list items for rent. Features an AI-powered listing assistant and a smart concierge to help you find the perfect gear.",
+  "requestFramePermissions": [
+    "camera",
+    "geolocation"
+  ]
+}
